@@ -9,18 +9,34 @@ import { OpenListClient } from '@/lib/openlist.client';
 export const runtime = 'nodejs';
 
 /**
- * GET /api/openlist/play?folder=xxx&fileName=xxx
+ * GET /api/openlist/play/{token}?folder=xxx&fileName=xxx
  * 获取单个视频文件的播放链接（懒加载）
  * 返回重定向到真实播放 URL
+ *
+ * 权限验证：TVBox Token（路径参数） 或 用户登录（满足其一即可）
  */
-export async function GET(request: NextRequest) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { token: string } }
+) {
   try {
+    const { searchParams } = new URL(request.url);
+
+    // 双重验证：TVBox Token 或 用户登录
+    const requestToken = params.token;
+    const subscribeToken = process.env.TVBOX_SUBSCRIBE_TOKEN;
     const authInfo = getAuthInfoFromCookie(request);
-    if (!authInfo || !authInfo.username) {
+
+    // 验证 TVBox Token
+    const hasValidToken = subscribeToken && requestToken === subscribeToken;
+    // 验证用户登录
+    const hasValidAuth = authInfo && authInfo.username;
+
+    // 两者至少满足其一
+    if (!hasValidToken && !hasValidAuth) {
       return NextResponse.json({ error: '未授权' }, { status: 401 });
     }
 
-    const { searchParams } = new URL(request.url);
     const folderName = searchParams.get('folder');
     const fileName = searchParams.get('fileName');
 
