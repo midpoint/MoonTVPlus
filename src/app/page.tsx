@@ -240,11 +240,21 @@ function HomeClient() {
                             className='min-w-[96px] w-24 sm:min-w-[180px] sm:w-44'
                           >
                             <VideoCard
+                              id={duanju.id}
+                              source={duanju.source}
                               poster={duanju.poster}
                               title={duanju.title}
                               year={duanju.year}
                               type='tv'
-                              from='douban'
+                              from='search'
+                              source_name={duanju.source_name}
+                              episodes={duanju.episodes?.length}
+                              douban_id={duanju.douban_id}
+                              cmsData={{
+                                desc: duanju.desc,
+                                episodes: duanju.episodes,
+                                episodes_titles: duanju.episodes_titles,
+                              }}
                             />
                           </div>
                         ))}

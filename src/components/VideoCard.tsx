@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any,react-hooks/exhaustive-deps,@typescript-eslint/no-empty-function */
 
-import { ExternalLink, Heart, Link, PlayCircleIcon, Radio, Sparkles, Trash2 } from 'lucide-react';
+import { ExternalLink, Heart, Info, Link, PlayCircleIcon, Radio, Sparkles, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import React, {
@@ -27,6 +27,7 @@ import { useLongPress } from '@/hooks/useLongPress';
 import { ImagePlaceholder } from '@/components/ImagePlaceholder';
 import MobileActionSheet from '@/components/MobileActionSheet';
 import AIChatPanel from '@/components/AIChatPanel';
+import DetailPanel from '@/components/DetailPanel';
 
 export interface VideoCardProps {
   id?: string;
@@ -56,6 +57,11 @@ export interface VideoCardProps {
   orientation?: 'vertical' | 'horizontal'; // 卡片方向
   playTime?: number; // 当前播放时间（秒）
   totalTime?: number; // 总时长（秒）
+  cmsData?: {
+    desc?: string;
+    episodes?: string[];
+    episodes_titles?: string[];
+  };
 }
 
 export type VideoCardHandle = {
@@ -93,6 +99,7 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(function VideoCard
     orientation = 'vertical',
     playTime,
     totalTime,
+    cmsData,
   }: VideoCardProps,
   ref
 ) {
@@ -103,6 +110,7 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(function VideoCard
   const [searchFavorited, setSearchFavorited] = useState<boolean | null>(null); // 搜索结果的收藏状态
   const [showAIChat, setShowAIChat] = useState(false);
   const [aiEnabled, setAiEnabled] = useState(false);
+  const [showDetailPanel, setShowDetailPanel] = useState(false);
 
   // 检查AI功能是否启用
   useEffect(() => {
@@ -552,6 +560,21 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(function VideoCard
         color: 'default' as const,
       });
     }
+
+    // 详情页面按钮
+    actions.push({
+      id: 'detail',
+      label: '详情',
+      icon: <Info size={20} />,
+      onClick: () => {
+        setShowMobileActions(false);
+        // 延迟打开 DetailPanel，确保 MobileActionSheet 完全清理完成
+        setTimeout(() => {
+          setShowDetailPanel(true);
+        }, 250);
+      },
+      color: 'default' as const,
+    });
 
     // AI问片功能
     if (aiEnabled && actualTitle) {
@@ -1167,7 +1190,7 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(function VideoCard
                       )}
 
                       {/* 来源 - 右侧 */}
-                      {config.showSourceName && source_name && (
+                      {config.showSourceName && source_name && !cmsData && (
                         <span
                           className={`inline-block border rounded px-1 py-0.5 text-[8px] text-white/90 bg-black/30 backdrop-blur-sm ${
                             actualSource === 'openlist' ? 'border-yellow-500' : 'border-white/60'
@@ -1216,7 +1239,7 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(function VideoCard
                 )}
 
                 {/* 直播时只显示来源 */}
-                {origin === 'live' && config.showSourceName && source_name && (
+                {origin === 'live' && config.showSourceName && source_name && !cmsData && (
                   <div className='flex items-center justify-end'>
                     <span
                       className={`inline-block border rounded px-1 py-0.5 text-[8px] text-white/90 bg-black/30 backdrop-blur-sm ${
@@ -1334,7 +1357,7 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(function VideoCard
                   ></div>
                 </div>
               </div>
-              {config.showSourceName && source_name && (
+              {config.showSourceName && source_name && !cmsData && (
                 <span
                   className='block text-xs text-gray-500 dark:text-gray-400 mt-1'
                   style={{
@@ -1380,7 +1403,7 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(function VideoCard
         actions={mobileActions}
         sources={isAggregate && dynamicSourceNames ? Array.from(new Set(dynamicSourceNames)) : undefined}
         isAggregate={isAggregate}
-        sourceName={source_name}
+        sourceName={cmsData ? undefined : source_name}
         currentEpisode={currentEpisode}
         totalEpisodes={actualEpisodes}
         origin={origin}
@@ -1400,6 +1423,25 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(function VideoCard
             currentEpisode,
           }}
           welcomeMessage={`想了解《${actualTitle}》的更多信息吗？我可以帮你查询剧情、演员、评价等。`}
+        />
+      )}
+
+      {/* 详情面板 */}
+      {showDetailPanel && (
+        <DetailPanel
+          isOpen={showDetailPanel}
+          onClose={() => setShowDetailPanel(false)}
+          title={actualTitle}
+          poster={processImageUrl(actualPoster)}
+          doubanId={actualDoubanId}
+          bangumiId={isBangumi ? actualDoubanId : undefined}
+          isBangumi={isBangumi}
+          tmdbId={tmdb_id}
+          type={actualSearchType as 'movie' | 'tv'}
+          seasonNumber={seasonNumber}
+          cmsData={cmsData}
+          sourceId={id}
+          source={source}
         />
       )}
     </>
