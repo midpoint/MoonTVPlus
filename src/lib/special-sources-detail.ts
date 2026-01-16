@@ -303,7 +303,7 @@ export async function getOpenListDetail(
       (ep) =>
         `/api/openlist/play?folder=${encodeURIComponent(folderName)}&fileName=${encodeURIComponent(ep.fileName)}`
     ),
-    episodes_titles: episodes.map((ep) => ep.title),
+    episodes_titles: episodes.map((ep) => ep.title!),
     proxyMode: false, // openlist 源不使用代理模式
   };
 }
@@ -373,7 +373,7 @@ export async function getXiaoyaDetail(id: string): Promise<SearchResult> {
       (ep) =>
         `/api/xiaoya/play?path=${encodeURIComponent(base58Encode(ep.path))}`
     ),
-    episodes_titles: episodes.map((ep) => ep.title),
+    episodes_titles: episodes.map((ep) => ep.title!),
     subtitles: [],
     proxyMode: false,
     metadataSource: metadata.source,

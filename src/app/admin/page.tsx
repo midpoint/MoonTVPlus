@@ -7803,6 +7803,7 @@ const RegistrationConfigComponent = ({
             </label>
             <button
               type='button'
+              disabled={!registrationSettings.TurnstileSiteKey || !registrationSettings.TurnstileSecretKey}
               onClick={() =>
                 setRegistrationSettings((prev) => ({
                   ...prev,
@@ -7810,7 +7811,9 @@ const RegistrationConfigComponent = ({
                 }))
               }
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
-                registrationSettings.RegistrationRequireTurnstile
+                !registrationSettings.TurnstileSiteKey || !registrationSettings.TurnstileSecretKey
+                  ? 'opacity-50 cursor-not-allowed bg-gray-300 dark:bg-gray-600'
+                  : registrationSettings.RegistrationRequireTurnstile
                   ? buttonStyles.toggleOn
                   : buttonStyles.toggleOff
               }`}
@@ -7828,6 +7831,9 @@ const RegistrationConfigComponent = ({
           </div>
           <p className='mt-1 text-xs text-gray-500 dark:text-gray-400'>
             开启后注册时需要通过Cloudflare Turnstile人机验证。
+            {(!registrationSettings.TurnstileSiteKey || !registrationSettings.TurnstileSecretKey) && (
+              <span className='text-orange-500 dark:text-orange-400'> 需要先配置Site Key和Secret Key才能启用。</span>
+            )}
           </p>
         </div>
 
@@ -7839,6 +7845,7 @@ const RegistrationConfigComponent = ({
             </label>
             <button
               type='button'
+              disabled={!registrationSettings.TurnstileSiteKey || !registrationSettings.TurnstileSecretKey}
               onClick={() =>
                 setRegistrationSettings((prev) => ({
                   ...prev,
@@ -7846,7 +7853,9 @@ const RegistrationConfigComponent = ({
                 }))
               }
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
-                registrationSettings.LoginRequireTurnstile
+                !registrationSettings.TurnstileSiteKey || !registrationSettings.TurnstileSecretKey
+                  ? 'opacity-50 cursor-not-allowed bg-gray-300 dark:bg-gray-600'
+                  : registrationSettings.LoginRequireTurnstile
                   ? buttonStyles.toggleOn
                   : buttonStyles.toggleOff
               }`}
@@ -7864,6 +7873,9 @@ const RegistrationConfigComponent = ({
           </div>
           <p className='mt-1 text-xs text-gray-500 dark:text-gray-400'>
             开启后登录时需要通过Cloudflare Turnstile人机验证。
+            {(!registrationSettings.TurnstileSiteKey || !registrationSettings.TurnstileSecretKey) && (
+              <span className='text-orange-500 dark:text-orange-400'> 需要先配置Site Key和Secret Key才能启用。</span>
+            )}
           </p>
         </div>
 
