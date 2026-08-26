@@ -8,8 +8,8 @@ on:
         required: false
         default: 'latest'
         type: string
-  push:
-    branches: [ main ]
+  # push:
+  #   branches: [ main ]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
